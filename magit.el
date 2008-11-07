@@ -906,7 +906,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "r *") 'magit-rewrite-set-unused)
     (define-key map (kbd "r .") 'magit-rewrite-set-used)
     (define-key map (kbd "P") 'magit-push)
-    (define-key map (kbd "f") 'magit-remote-update)
+    (define-key map (kbd "f") 'magit-visit-item)
     (define-key map (kbd "F") 'magit-pull)
     (define-key map (kbd "c") 'magit-log-edit)
     (define-key map (kbd "C") 'magit-add-log)
