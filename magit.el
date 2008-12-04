@@ -2188,7 +2188,7 @@ Prefix arg means justify as well."
 	   `("git" "log" "--max-count=1000" "--pretty=oneline"
              ,@(if magit-have-decorate (list "--decorate"))
 	     ,@(if magit-have-graph (list "--graph"))
-	     ,args))))
+	     ,args "--"))))
 
 (defun magit-log (range)
   (interactive (list (magit-read-rev-range "Log" (magit-get-current-branch))))
