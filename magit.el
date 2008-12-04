@@ -224,8 +224,9 @@ Many Magit faces inherit from this one by default."
       nil)))
 
 (defun magit-read-top-dir ()
-  (read-directory-name "Git repository: "
-		       (magit-get-top-dir default-directory)))
+  (file-name-as-directory
+   (read-directory-name "Git repository: "
+			(magit-get-top-dir default-directory))))
 
 (defun magit-name-rev (rev)
   (and rev
