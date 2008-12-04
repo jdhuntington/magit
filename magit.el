@@ -216,9 +216,8 @@ Many Magit faces inherit from this one by default."
       nil)))
 
 (defun magit-read-top-dir ()
-  (magit-get-top-dir
-   (read-directory-name "Git repository: "
-			(magit-get-top-dir default-directory))))
+  (read-directory-name "Git repository: "
+		       (magit-get-top-dir default-directory)))
 
 (defun magit-name-rev (rev)
   (and rev
@@ -1504,18 +1503,40 @@ in log buffer."
 	(when remote
 	  (magit-insert-unpushed-commits remote branch))))))
 
+(defun magit-init (dir)
+  "Initialize git repository in specified directory"
+  (interactive (list (read-directory-name "Directory for git repository: ")))
+  (let ((topdir (magit-get-top-dir dir)))
+    (when (or (not topdir)
+	      (y-or-n-p
+	       (format
+		(if (string-equal topdir (expand-file-name dir))
+		    "There is already git repository in %S. Reinitialize?"
+		  "There is git repository in %S. Create another in %S?")
+		topdir dir)))
+      (unless (file-directory-p dir)
+	(and (y-or-n-p (format "Directory %S does not exists. Create?" dir))
+	     (make-directory dir)))
+      (let ((default-directory dir))
+	(magit-run* (list "git" "init"))))))
+
 (defun magit-status (dir)
   (interactive (list (magit-read-top-dir)))
   (save-some-buffers)
-  (let* ((topdir (magit-get-top-dir dir))
-	 (buf (or (magit-find-buffer 'status topdir)
-		  (switch-to-buffer
-		   (generate-new-buffer
-		    (concat "*magit: "
-			    (file-name-nondirectory
-			     (directory-file-name topdir)) "*"))))))
-    (switch-to-buffer buf)
-    (magit-mode-init topdir 'status #'magit-refresh-status)))
+  (let ((topdir (magit-get-top-dir dir)))
+    (unless topdir
+      (when (y-or-n-p (format "There is no git repository in %S. Create?" dir))
+	(magit-init dir)
+	(setq topdir (magit-get-top-dir dir))))
+    (when topdir
+      (let ((buf (or (magit-find-buffer 'status topdir)
+		     (switch-to-buffer
+		      (generate-new-buffer
+		       (concat "*magit: "
+			       (file-name-nondirectory
+				(directory-file-name topdir)) "*"))))))
+	(switch-to-buffer buf)
+	(magit-mode-init topdir 'status #'magit-refresh-status)))))
 
 ;;; Staging and Unstaging
 
