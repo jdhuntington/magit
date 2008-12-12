@@ -888,6 +888,7 @@ Many Magit faces inherit from this one by default."
     (define-key map (kbd "x") 'magit-reset-head)
     (define-key map (kbd "X") 'magit-reset-working-tree)
     (define-key map (kbd "k") 'magit-discard-item)
+    (define-key map (kbd "K") 'magit-clean)
     (define-key map (kbd "RET") 'magit-visit-item)
     (define-key map (kbd "SPC") 'magit-show-item-or-scroll-up)
     (define-key map (kbd "DEL") 'magit-show-item-or-scroll-down)
@@ -2373,5 +2374,10 @@ Prefix arg means justify as well."
     ((commit)
      (kill-new info)
      (message "%s" info))))
+
+(defun magit-clean ()
+  (interactive)
+  (if (yes-or-no-p "Remove all untracked files and directories? ")
+      (magit-run "git" "clean" "-dxf")))
 
 (provide 'magit)
