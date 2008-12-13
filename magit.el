@@ -2351,11 +2351,11 @@ Prefix arg means justify as well."
     ((commit)
      (magit-show-commit info #'scroll-down))))
 
-(defun magit-mark-item ()
-  (interactive)
+(defun magit-mark-item (&optional unmark)
+  (interactive "P")
   (magit-section-action (item info "mark")
     ((commit)
-     (magit-set-marked-commit info))))
+     (magit-set-marked-commit (if unmark nil info)))))
 
 (defun magit-describe-item ()
   (interactive)
