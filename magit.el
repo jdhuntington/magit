@@ -2190,6 +2190,10 @@ Prefix arg means justify as well."
 
 (defvar magit-have-graph 'unset)
 (defvar magit-have-decorate 'unset)
+(make-variable-buffer-local 'magit-have-graph)
+(put 'magit-have-graph 'permanent-local t)
+(make-variable-buffer-local 'magit-have-decorate)
+(put 'magit-have-decorate 'permanent-local t)
 
 (defun magit-configure-have-graph ()
   (if (eq magit-have-graph 'unset)
@@ -2202,16 +2206,14 @@ Prefix arg means justify as well."
       (let ((res (magit-shell-exit-code "git log --decorate --max-count=0")))
 	(setq magit-have-decorate (eq res 0)))))
 
-(defun magit-refresh-log-buffer (range args)
-  (magit-configure-have-graph)
-  (magit-configure-have-decorate)
+(defun magit-refresh-log-buffer (range args have-graph have-decorate)
   (magit-create-buffer-sections
     (apply #'magit-insert-section 'log
 	   (magit-rev-range-describe range "Commits")
 	   'magit-wash-log nil
 	   `("git" "log" "--max-count=1000" "--pretty=oneline"
-             ,@(if magit-have-decorate (list "--decorate"))
-	     ,@(if magit-have-graph (list "--graph"))
+             ,@(if have-decorate (list "--decorate"))
+	     ,@(if have-graph (list "--graph"))
 	     ,args "--"))))
 
 (defun magit-log (range)
@@ -2219,8 +2221,11 @@ Prefix arg means justify as well."
   (if range
       (let* ((topdir (magit-get-top-dir default-directory))
 	     (args (magit-rev-range-to-git range)))
-	(switch-to-buffer "*magit-log*")
-	(magit-mode-init topdir 'log #'magit-refresh-log-buffer range args))))
+	(let ((have-graph (magit-configure-have-graph))
+	      (have-decorate (magit-configure-have-decorate)))
+	  (switch-to-buffer "*magit-log*")
+	  (magit-mode-init topdir 'log #'magit-refresh-log-buffer range args
+			   have-graph have-decorate)))))
 
 (defun magit-log-head ()
   (interactive)
