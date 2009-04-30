@@ -911,13 +911,13 @@ Many Magit faces inherit from this one by default."
 
 (defun magit-run* (cmd-and-args
 		   &optional logline noerase noerror nowait input)
+  (or (null (get-buffer-process "*magit-process*"))
+      (error "Git is already running."))
   (let ((cmd (car cmd-and-args))
 	(args (cdr cmd-and-args))
 	(dir default-directory)
 	(buf (get-buffer-create "*magit-process*"))
 	(successp nil))
-    (or (not magit-process)
-	(error "Git is already running."))
     (magit-set-mode-line-process
      (magit-process-indicator-from-command cmd-and-args))
     (setq magit-process-client-buffer (current-buffer))
