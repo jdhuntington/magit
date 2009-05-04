@@ -1860,8 +1860,6 @@ in log buffer."
   (interactive (list (or (and (not current-prefix-arg)
 			      (magit-get-top-dir default-directory))
 			 (magit-read-top-dir))))
-  (if magit-save-some-buffers
-      (save-some-buffers (eq magit-save-some-buffers 'dontask)))
   (let ((topdir (magit-get-top-dir dir)))
     (unless topdir
       (when (y-or-n-p (format "There is no Git repository in %S. Create one? "
@@ -1869,6 +1867,11 @@ in log buffer."
 	(magit-init dir)
 	(setq topdir (magit-get-top-dir dir))))
     (when topdir
+      (if magit-save-some-buffers
+          (save-some-buffers (eq magit-save-some-buffers 'dontask)
+                             (lambda ()
+                               (and buffer-file-name
+                                    (string-equal topdir (magit-get-top-dir default-directory))))))
       (let ((buf (or (magit-find-buffer 'status topdir)
                      (switch-to-buffer
                       (get-buffer-create
@@ -1877,6 +1880,8 @@ in log buffer."
                                 (directory-file-name topdir)) "*"))))))
         (switch-to-buffer buf)
         (magit-mode-init topdir 'status #'magit-refresh-status)))))
+
+
 
 
 ;;; Staging and Unstaging
